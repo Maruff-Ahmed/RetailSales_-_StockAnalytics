@@ -115,8 +115,8 @@ flowchart TD
 
 ### Step 1: Clone the Repository
 ```bash
-git clone https://github.com/marufahmed/RetailSalesStockAnalytics.git
-cd RetailSalesStockAnalytics
+git clone https://github.com/Maruff-Ahmed/RetailSales_-_StockAnalytics.git
+cd RetailSales_-_StockAnalytics
 ```
 
 ### Step 2: Configure the Database Connection
