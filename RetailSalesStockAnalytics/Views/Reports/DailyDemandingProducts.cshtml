@@ -1,0 +1,382 @@
+﻿
+@model RetailSalesStockAnalytics.ViewModels.Reports.DailyDemandingProductReportViewModel
+
+@{
+    ViewData["Title"] = "Daily Demanding Product Report";
+}
+
+<div class="container-fluid">
+
+    <!-- PAGE HEADER -->
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h2 class="mb-1">
+                📦 Daily Demanding Product Report
+            </h2>
+
+            <p class="text-muted mb-0">
+                Analyze the products with the highest demand
+                during the selected period
+            </p>
+
+        </div>
+
+        <div>
+
+            <a asp-controller="Reports"
+               asp-action="Index"
+               class="btn btn-outline-secondary">
+
+                ← Reports Center
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- DATE FILTER -->
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header">
+
+            <strong>
+                Report Period
+            </strong>
+
+        </div>
+
+        <div class="card-body">
+
+            <form asp-action="DailyDemandingProducts"
+                  method="get">
+
+                <div class="row align-items-end">
+
+                    <div class="col-md-4 mb-3">
+
+                        <label class="form-label">
+                            Start Date
+                        </label>
+
+                        <input type="date"
+                               name="startDate"
+                               value="@Model.StartDate?.ToString("yyyy-MM-dd")"
+                               class="form-control" />
+
+                    </div>
+
+
+                    <div class="col-md-4 mb-3">
+
+                        <label class="form-label">
+                            End Date
+                        </label>
+
+                        <input type="date"
+                               name="endDate"
+                               value="@Model.EndDate?.ToString("yyyy-MM-dd")"
+                               class="form-control" />
+
+                    </div>
+
+
+                    <div class="col-md-4 mb-3">
+
+                        <button type="submit"
+                                class="btn btn-primary">
+
+                            🔍 Generate Report
+
+                        </button>
+
+                        <a asp-action="DailyDemandingProducts"
+                           class="btn btn-outline-secondary">
+
+                            Reset
+
+                        </a>
+
+                    </div>
+                    
+                    <div class="mt-2">
+
+                        <a asp-action="ExportDailyDemandingProductsPdf"
+                           asp-route-startDate="@Model.StartDate?.ToString("yyyy-MM-dd")"
+                           asp-route-endDate="@Model.EndDate?.ToString("yyyy-MM-dd")"
+                           class="btn btn-danger btn-sm">
+
+                            📄 Export PDF
+
+                        </a>
+
+
+                        <a asp-action="ExportDailyDemandingProductsExcel"
+                           asp-route-startDate="@Model.StartDate?.ToString("yyyy-MM-dd")"
+                           asp-route-endDate="@Model.EndDate?.ToString("yyyy-MM-dd")"
+                           class="btn btn-success btn-sm">
+
+                            📊 Export Excel
+
+                        </a>
+
+                    </div>
+                    
+
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- SUMMARY -->
+
+    <div class="row">
+
+        <!-- PRODUCTS -->
+
+        <div class="col-md-4 mb-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <small class="text-muted">
+                        Different Products Sold
+                    </small>
+
+                    <h3 class="mt-2">
+                        @Model.TotalProductsSold
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- UNITS -->
+
+        <div class="col-md-4 mb-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <small class="text-muted">
+                        Total Units Sold
+                    </small>
+
+                    <h3 class="mt-2">
+                        @Model.TotalUnitsSold
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- REVENUE -->
+
+        <div class="col-md-4 mb-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <small class="text-muted">
+                        Total Revenue
+                    </small>
+
+                    <h3 class="mt-2">
+                        ৳ @Model.TotalRevenue.ToString("N2")
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- PRODUCT TABLE -->
+
+    <div class="card shadow-sm">
+
+        <div class="card-header d-flex justify-content-between align-items-center">
+
+            <strong>
+                Product Demand Details
+            </strong>
+
+            <span class="text-muted">
+
+                @Model.Products.Count record(s)
+
+            </span>
+
+        </div>
+
+
+        <div class="card-body p-0">
+
+            @if (Model.Products.Any())
+            {
+                <div class="table-responsive">
+
+                    <table class="table table-hover mb-0">
+
+                        <thead class="table-light">
+
+                            <tr>
+
+                                <th>
+                                    Date
+                                </th>
+
+                                <th>
+                                    Product
+                                </th>
+
+                                <th>
+                                    Category
+                                </th>
+
+                                <th class="text-center">
+                                    Units Sold
+                                </th>
+
+                                <th class="text-end">
+                                    Revenue
+                                </th>
+
+                                <th class="text-end">
+                                    Demand %
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            @foreach (var row in Model.Products)
+                            {
+                                <tr>
+
+                                    <td>
+                                        @row.Date.ToString("dd MMM yyyy")
+                                    </td>
+
+                                    <td class="fw-semibold">
+                                        @row.ProductName
+                                    </td>
+
+                                    <td>
+                                        @row.CategoryName
+                                    </td>
+
+                                    <td class="text-center">
+                                        @row.UnitsSold
+                                    </td>
+
+                                    <td class="text-end">
+                                        ৳ @row.Revenue.ToString("N2")
+                                    </td>
+
+                                    <td class="text-end fw-semibold">
+                                        @row.DemandPercentage.ToString("0.00")%
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+            else
+            {
+                <div class="p-5 text-center">
+
+                    <h5 class="text-muted">
+                        No product sales found
+                    </h5>
+
+                    <p class="text-muted mb-0">
+                        Try selecting a different date range.
+                    </p>
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+
+    <!-- INFORMATION -->
+
+    <div class="alert alert-info mt-4">
+
+        <strong>Demand Percentage:</strong>
+
+        The demand percentage represents the percentage of
+        total units sold for that particular day.
+
+        For example, if 100 total units were sold in one day
+        and a product sold 40 units, its demand percentage
+        is 40%.
+
+    </div>
+
+
+    <!-- REPORT PERIOD -->
+
+    <div class="alert alert-secondary">
+
+        <strong>Report Period:</strong>
+
+        @if (Model.StartDate.HasValue ||
+                Model.EndDate.HasValue)
+        {
+            <span>
+
+                @(Model.StartDate?.ToString("dd MMM yyyy")
+                            ?? "Beginning")
+
+                —
+
+                @(Model.EndDate?.ToString("dd MMM yyyy")
+                            ?? "Today")
+
+        </span>
+                }
+        else
+        {
+            <span>
+                All available sales data
+            </span>
+        }
+
+    </div>
+
+</div>
+

@@ -1,0 +1,43 @@
+## Build and output
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+## Test results and artifacts
+[Tt]est[Rr]esults/
+*.trx
+http_sum_*.txt
+
+## Visual Studio
+.vs/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+*.sln.docstates
+
+## JetBrains / Rider
+.idea/
+
+## Visual Studio Code
+.vscode/
+
+## Diagnostics, Profiling & Crash Dumps
+*.pidb
+*.svclog
+*.dotCover
+*.dmp
+
+## Environment / Secrets
+appsettings.Production.json
+appsettings.Local.json
+appsettings.*.local.json
+secrets.json
+
+## OS files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store

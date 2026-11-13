@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Retail Sales &amp; Stock Analytics</title>
+
+    <!-- Google Fonts (Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <!-- Bootstrap Icons (CDN for views using bi bi-*) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Application Stylesheet -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/RetailSalesStockAnalytics.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="app-wrapper">
+        <!-- ============================= -->
+        <!-- DESKTOP PERSISTENT SIDEBAR    -->
+        <!-- ============================= -->
+        <aside class="sidebar d-none d-lg-flex" aria-label="Desktop Navigation">
+            <a asp-controller="Home" asp-action="Index" class="sidebar-brand">
+                <span class="sidebar-brand-icon" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z"/>
+                        <path d="m3 9 2.45-4.9A2 2 0 0 1 7.24 3h9.52a2 2 0 0 1 1.8 1.1L21 9"/>
+                        <path d="M12 3v6"/>
+                    </svg>
+                </span>
+                <span class="sidebar-brand-text">Retail Analytics</span>
+            </a>
+
+            @await Html.PartialAsync("_SidebarNav")
+        </aside>
+
+        <!-- ============================= -->
+        <!-- MOBILE OFFCANVAS DRAWER       -->
+        <!-- ============================= -->
+        <div class="offcanvas offcanvas-start mobile-sidebar d-lg-none" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
+            <div class="offcanvas-header border-bottom">
+                <a asp-controller="Home" asp-action="Index" class="d-flex align-items-center gap-2 text-decoration-none" id="mobileSidebarLabel">
+                    <span class="sidebar-brand-icon" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z"/>
+                            <path d="m3 9 2.45-4.9A2 2 0 0 1 7.24 3h9.52a2 2 0 0 1 1.8 1.1L21 9"/>
+                            <path d="M12 3v6"/>
+                        </svg>
+                    </span>
+                    <span class="sidebar-brand-text">Retail Analytics</span>
+                </a>
+                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close navigation menu"></button>
+            </div>
+            <div class="offcanvas-body">
+                @await Html.PartialAsync("_SidebarNav")
+            </div>
+        </div>
+
+        <!-- ============================= -->
+        <!-- MAIN CONTENT WRAPPER          -->
+        <!-- ============================= -->
+        <div class="main-wrapper">
+            <!-- TOPBAR -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <!-- Mobile Hamburger Button -->
+                    <button class="btn btn-hamburger d-lg-none"
+                            type="button"
+                            data-bs-toggle="offcanvas"
+                            data-bs-target="#mobileSidebar"
+                            aria-controls="mobileSidebar"
+                            aria-label="Toggle navigation menu">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+
+                    <h1 class="topbar-title">Retail Sales &amp; Stock Analytics</h1>
+                </div>
+
+                <!-- TOPBAR RIGHT / ACCOUNT AREA -->
+                <div class="topbar-right">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <div class="dropdown">
+                            <button class="btn user-profile-btn dropdown-toggle"
+                                    type="button"
+                                    id="userDropdownMenu"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false"
+                                    aria-label="User account menu">
+                                <div class="user-avatar" aria-hidden="true">
+                                    @(User.Identity.Name?.Substring(0, 1).ToUpper() ?? "U")
+                                </div>
+                                <div class="user-info text-start d-none d-sm-block">
+                                    <div class="user-name">@User.Identity.Name</div>
+                                    <div class="user-role">
+                                        @(User.IsInRole("Admin") ? "Admin" : User.IsInRole("Manager") ? "Manager" : "User")
+                                    </div>
+                                </div>
+                            </button>
+
+                            <ul class="dropdown-menu dropdown-menu-end user-dropdown-menu" aria-labelledby="userDropdownMenu">
+                                <li class="user-dropdown-header border-bottom mb-1">
+                                    <div class="fw-bold text-dark">@User.Identity.Name</div>
+                                    <div class="d-flex align-items-center gap-1 mt-1">
+                                        <span class="badge @(User.IsInRole("Admin") ? "bg-primary-subtle text-primary border border-primary-subtle" : "bg-secondary-subtle text-secondary border border-secondary-subtle")">
+                                            @(User.IsInRole("Admin") ? "Administrator" : User.IsInRole("Manager") ? "Store Manager" : "Staff User")
+                                        </span>
+                                    </div>
+                                </li>
+                                <li>
+                                    <form asp-controller="Account" asp-action="Logout" method="post" class="px-2 pt-2">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-outline-danger btn-sm w-100 d-inline-flex align-items-center justify-content-center gap-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                                <polyline points="16 17 21 12 16 7"></polyline>
+                                                <line x1="21" y1="12" x2="9" y2="12"></line>
+                                            </svg>
+                                            <span>Sign Out</span>
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    }
+                    else
+                    {
+                        <a asp-controller="Account" asp-action="Login" class="btn btn-primary btn-sm px-3 shadow-sm d-inline-flex align-items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                                <polyline points="10 17 15 12 10 7"></polyline>
+                                <line x1="15" y1="12" x2="3" y2="12"></line>
+                            </svg>
+                            <span>Sign In</span>
+                        </a>
+                    }
+                </div>
+            </header>
+
+            <!-- PAGE CONTENT -->
+            <main class="content-area">
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show mb-4 shadow-sm" role="alert">
+                        <div class="d-flex align-items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16" class="flex-shrink-0" aria-hidden="true">
+                                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.71c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                            </svg>
+                            <div>@TempData["ErrorMessage"]</div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show mb-4 shadow-sm" role="alert">
+                        <div class="d-flex align-items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16" class="flex-shrink-0" aria-hidden="true">
+                                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                            </svg>
+                            <div>@TempData["SuccessMessage"]</div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+                @if (TempData["WarningMessage"] != null)
+                {
+                    <div class="alert alert-warning alert-dismissible fade show mb-4 shadow-sm" role="alert">
+                        <div class="d-flex align-items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16" class="flex-shrink-0" aria-hidden="true">
+                                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.71c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                            </svg>
+                            <div>@TempData["WarningMessage"]</div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

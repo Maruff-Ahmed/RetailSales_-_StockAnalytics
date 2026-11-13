@@ -1,0 +1,490 @@
+﻿@model RetailSalesStockAnalytics.ViewModels.SalesAnalyticsViewModel
+
+@{
+    ViewData["Title"] = "Sales & Profit Analytics";
+}
+
+<h1>Sales & Profit Analytics</h1>
+
+<hr />
+
+<!-- =========================
+     FILTERS
+========================= -->
+
+<form asp-action="Index" method="get">
+
+    <div class="row mb-4">
+
+        <!-- Start Date -->
+        <div class="col-md-3">
+
+            <label class="form-label">
+                Start Date
+            </label>
+
+            <input type="date"
+                   name="startDate"
+                   value="@Model.StartDate.ToString("yyyy-MM-dd")"
+                   class="form-control" />
+
+        </div>
+
+        <!-- End Date -->
+        <div class="col-md-3">
+
+            <label class="form-label">
+                End Date
+            </label>
+
+            <input type="date"
+                   name="endDate"
+                   value="@Model.EndDate.ToString("yyyy-MM-dd")"
+                   class="form-control" />
+
+        </div>
+
+        <!-- Category -->
+        <div class="col-md-3">
+
+            <label class="form-label">
+                Product Category
+            </label>
+
+            <select name="categoryId"
+                    class="form-select">
+
+                <option value="">
+                    All Categories
+                </option>
+
+                @foreach (var category in ViewBag.Categories)
+                {
+                    <option value="@category.Value"
+                            selected="@(category.Value == Model.CategoryId?.ToString())">
+
+                        @category.Text
+
+                    </option>
+                }
+
+            </select>
+
+        </div>
+
+        <!-- Apply -->
+        <div class="col-md-3 d-flex align-items-end">
+
+            <button type="submit"
+                    class="btn btn-primary">
+
+                Apply Filter
+
+            </button>
+
+        </div>
+
+    </div>
+
+</form>
+
+
+<!-- =========================
+     SELECTED FILTER
+========================= -->
+
+<div class="alert alert-secondary">
+
+    <strong>Period:</strong>
+
+    @Model.StartDate.ToString("dd-MMM-yyyy")
+    -
+    @Model.EndDate.ToString("dd-MMM-yyyy")
+
+    @if (Model.CategoryId.HasValue)
+    {
+        <span>
+            |
+            <strong>Category:</strong>
+            @Model.CategoryName
+        </span>
+    }
+
+</div>
+
+
+<!-- =========================
+     KPI CARDS
+========================= -->
+
+<div class="row">
+
+    <!-- Net Revenue -->
+    <div class="col-md-4 mb-3">
+
+        <div class="card">
+
+            <div class="card-body">
+
+                <h5 class="card-title">
+                    Net Revenue
+                </h5>
+
+                <h3>
+                    ৳@Model.TotalRevenue.ToString("N2")
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Cost -->
+    <div class="col-md-4 mb-3">
+
+        <div class="card">
+
+            <div class="card-body">
+
+                <h5 class="card-title">
+                    Total Cost
+                </h5>
+
+                <h3>
+                    ৳@Model.TotalCost.ToString("N2")
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Gross Profit -->
+    <div class="col-md-4 mb-3">
+
+        <div class="card">
+
+            <div class="card-body">
+
+                <h5 class="card-title">
+                    Gross Profit
+                </h5>
+
+                <h3>
+                    ৳@Model.GrossProfit.ToString("N2")
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="row">
+
+    <!-- Profit Margin -->
+    <div class="col-md-4 mb-3">
+
+        <div class="card">
+
+            <div class="card-body">
+
+                <h5 class="card-title">
+                    Profit Margin
+                </h5>
+
+                <h3>
+                    @Model.ProfitMargin.ToString("N2")%
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Average Basket -->
+    <div class="col-md-4 mb-3">
+
+        <div class="card">
+
+            <div class="card-body">
+
+                <h5 class="card-title">
+                    Average Basket Value
+                </h5>
+
+                <h3>
+                    ৳@Model.AverageBasketValue.ToString("N2")
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Total Sales -->
+    <div class="col-md-4 mb-3">
+
+        <div class="card">
+
+            <div class="card-body">
+
+                <h5 class="card-title">
+                    Total Sales
+                </h5>
+
+                <h3>
+                    @Model.TotalSales
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     CHART.JS
+========================= -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<!-- =========================
+     SALES & PROFIT TREND
+========================= -->
+
+<div class="card mt-4">
+
+    <div class="card-body">
+
+        <h4 class="card-title">
+            Sales & Profit Trend
+        </h4>
+
+        <canvas id="salesTrendChart"></canvas>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     CATEGORY PERFORMANCE
+========================= -->
+
+<div class="card mt-4">
+
+    <div class="card-body">
+
+        <h4 class="card-title">
+            Category Performance
+        </h4>
+
+        <canvas id="categoryPerformanceChart"></canvas>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     CHART JAVASCRIPT
+========================= -->
+
+<script>
+
+    // ==========================================
+    // DAILY SALES DATA
+    // ==========================================
+
+    const dailySales = @Html.Raw(
+                System.Text.Json.JsonSerializer.Serialize(Model.DailySales)
+        );
+
+    const labels = dailySales.map(x =>
+        new Date(x.Date).toLocaleDateString()
+    );
+
+    const revenueData = dailySales.map(x =>
+        x.NetRevenue
+    );
+
+    const profitData = dailySales.map(x =>
+        x.GrossProfit
+    );
+
+
+    // ==========================================
+    // SALES & PROFIT TREND CHART
+    // ==========================================
+
+    const salesCtx =
+        document.getElementById('salesTrendChart');
+
+    new Chart(salesCtx, {
+
+        type: 'line',
+
+        data: {
+
+            labels: labels,
+
+            datasets: [
+
+                {
+                    label: 'Net Revenue',
+
+                    data: revenueData,
+
+                    tension: 0.3
+                },
+
+                {
+                    label: 'Gross Profit',
+
+                    data: profitData,
+
+                    tension: 0.3
+                }
+
+            ]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            interaction: {
+
+                mode: 'index',
+
+                intersect: false
+
+            },
+
+            scales: {
+
+                y: {
+
+                    beginAtZero: true,
+
+                    ticks: {
+
+                        callback: function(value) {
+
+                            return '৳' +
+                                value.toLocaleString();
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    });
+
+
+    // ==========================================
+    // CATEGORY SALES DATA
+    // ==========================================
+
+    const categorySales = @Html.Raw(
+                System.Text.Json.JsonSerializer.Serialize(Model.CategorySales)
+        );
+
+    const categoryLabels = categorySales.map(x =>
+        x.CategoryName
+    );
+
+    const categoryRevenue = categorySales.map(x =>
+        x.NetRevenue
+    );
+
+    const categoryProfit = categorySales.map(x =>
+        x.GrossProfit
+    );
+
+
+    // ==========================================
+    // CATEGORY PERFORMANCE CHART
+    // ==========================================
+
+    const categoryCtx =
+        document.getElementById('categoryPerformanceChart');
+
+    new Chart(categoryCtx, {
+
+        type: 'bar',
+
+        data: {
+
+            labels: categoryLabels,
+
+            datasets: [
+
+                {
+                    label: 'Net Revenue',
+
+                    data: categoryRevenue
+                },
+
+                {
+                    label: 'Gross Profit',
+
+                    data: categoryProfit
+                }
+
+            ]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            scales: {
+
+                y: {
+
+                    beginAtZero: true,
+
+                    ticks: {
+
+                        callback: function(value) {
+
+                            return '৳' +
+                                value.toLocaleString();
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    });
+
+</script>

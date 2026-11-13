@@ -1,0 +1,134 @@
+﻿@{
+    ViewData["Title"] = "Manager Login";
+}
+
+<style>
+    .auth-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+        background: #ffffff;
+    }
+
+    .auth-header-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #4f46e5, #6366f1);
+        color: #ffffff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+    }
+
+    .auth-input {
+        border-radius: 8px;
+        border: 1px solid #cbd5e1;
+        padding: 0.65rem 0.9rem;
+        font-size: 0.925rem;
+        transition: all 0.15s ease-in-out;
+    }
+
+        .auth-input:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        }
+
+    .btn-auth-submit {
+        background-color: #4f46e5;
+        border-color: #4f46e5;
+        border-radius: 8px;
+        padding: 0.65rem;
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: #ffffff;
+        transition: all 0.15s ease-in-out;
+    }
+
+        .btn-auth-submit:hover {
+            background-color: #4338ca;
+            border-color: #4338ca;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+        }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-sm-10 col-md-8 col-lg-5 col-xl-4">
+
+            <div class="card auth-card">
+                <div class="card-body p-4 p-sm-5">
+
+                    <!-- Header -->
+                    <div class="text-center mb-4">
+                        <div class="auth-header-icon mb-3">
+                            🔒
+                        </div>
+                        <h3 class="fw-bold text-dark mb-1">
+                            Manager Portal
+                        </h3>
+                        <p class="text-muted small mb-0">
+                            Sign in to manage sales, stock, and analytics
+                        </p>
+                    </div>
+
+                    <form asp-action="Login"
+                          asp-controller="Account"
+                          method="post">
+
+                        <div asp-validation-summary="ModelOnly"
+                             class="alert alert-danger py-2 small mb-3">
+                        </div>
+
+                        <input type="hidden"
+                               name="returnUrl"
+                               value="@ViewData["ReturnUrl"]" />
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-secondary small mb-1">
+                                Email Address
+                            </label>
+                            <input type="email"
+                                   name="email"
+                                   class="form-control auth-input"
+                                   placeholder="manager@domain.com"
+                                   autocomplete="email"
+                                   required />
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold text-secondary small mb-1">
+                                Password
+                            </label>
+                            <input type="password"
+                                   name="password"
+                                   class="form-control auth-input"
+                                   placeholder="••••••••"
+                                   autocomplete="current-password"
+                                   required />
+                        </div>
+
+                        <button type="submit"
+                                class="btn btn-auth-submit w-100">
+                            Sign In
+                        </button>
+
+                    </form>
+
+                </div>
+            </div>
+
+            <!-- Subtle Security Footnote -->
+            <div class="text-center mt-4">
+                <small class="text-muted">
+                    Protected by Retail Analytics Access Control
+                </small>
+            </div>
+
+        </div>
+    </div>
+</div>
+

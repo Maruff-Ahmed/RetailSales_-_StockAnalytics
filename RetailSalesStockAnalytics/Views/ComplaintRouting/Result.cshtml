@@ -1,0 +1,380 @@
+﻿
+@model RetailSalesStockAnalytics.Models.Complaint
+
+@{
+    ViewData["Title"] = "AI Routing Result";
+
+    var percentage = Model.SimilarityScore * 100;
+
+    var isRouted = Model.RoutingStatus == "Routed";
+}
+
+<div class="container-fluid">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-9">
+
+            <!-- HEADER -->
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+
+                <div>
+
+                    <h2>
+                        🤖 AI Routing Result
+                    </h2>
+
+                    <p class="text-muted mb-0">
+                        Cosine similarity based complaint classification
+                    </p>
+
+                </div>
+
+                <a asp-action="Index"
+                   class="btn btn-outline-secondary">
+
+                    Complaint History
+
+                </a>
+
+            </div>
+
+
+            <!-- RESULT -->
+
+            <div class="card shadow-sm mb-4">
+
+                <div class="card-body">
+
+                    <div class="row">
+
+                        <!-- COMPLAINT INFORMATION -->
+
+                        <div class="col-md-6">
+
+                            <h5 class="mb-3">
+                                Complaint Information
+                            </h5>
+
+                            <div class="mb-2">
+
+                                <strong>
+                                    Complaint ID:
+                                </strong>
+
+                                @Model.ComplaintCode
+
+                            </div>
+
+
+                            <div class="mb-2">
+
+                                <strong>
+                                    Customer:
+                                </strong>
+
+                                @Model.Customer?.Name
+
+                            </div>
+
+
+                            <div class="mb-3">
+
+                                <strong>
+                                    Created:
+                                </strong>
+
+                                @Model.CreatedAt.ToString("dd MMM yyyy hh:mm tt")
+
+                            </div>
+
+
+                            <div>
+
+                                <strong>
+                                    Complaint:
+                                </strong>
+
+                                <div class="alert alert-light border mt-2">
+
+                                    @Model.ComplaintText
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- AI RESULT -->
+
+                        <div class="col-md-6">
+
+                            <h5 class="mb-3">
+                                AI Classification
+                            </h5>
+
+
+                            @if (isRouted)
+                            {
+                                <div class="alert alert-success">
+
+                                    <h5 class="alert-heading">
+                                        ✓ Complaint Routed
+                                    </h5>
+
+                                    The similarity score reached
+                                    the required threshold.
+
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-warning">
+
+                                    <h5 class="alert-heading">
+                                        ⚠ Manual Review Required
+                                    </h5>
+
+                                    The similarity score did not reach
+                                    the 80% threshold.
+
+                                </div>
+                            }
+
+
+                            <div class="mb-3">
+
+                                <strong>
+                                    Fault Category:
+                                </strong>
+
+                                @if (Model.ComplaintCategory != null)
+                                {
+                                    <span>
+                                        @Model.ComplaintCategory.CategoryName
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">
+                                        No category identified
+                                    </span>
+                                }
+
+                            </div>
+
+
+                            <div class="mb-3">
+
+                                <strong>
+                                    Department:
+                                </strong>
+
+                                <span>
+                                    @Model.ComplaintCategory?.Department
+                                </span>
+
+                            </div>
+
+
+                            <!-- SIMILARITY -->
+
+                            <div class="mb-2">
+
+                                <strong>
+                                    Similarity Score
+                                </strong>
+
+                                <span class="float-end">
+
+                                    @percentage.ToString("0.00")%
+
+                                </span>
+
+                            </div>
+
+
+                            <div class="progress mb-3"
+                                 style="height: 25px;">
+
+                                <div class="progress-bar"
+                                     role="progressbar"
+                                     style="width: @percentage%;">
+
+                                    @percentage.ToString("0.00")%
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="mb-2">
+
+                                <strong>
+                                    Required Threshold
+                                </strong>
+
+                                <span class="float-end">
+                                    80.00%
+                                </span>
+
+                            </div>
+
+
+                            <div class="progress"
+                                 style="height: 20px;">
+
+                                <div class="progress-bar bg-secondary"
+                                     role="progressbar"
+                                     style="width: 80%;">
+
+                                    80%
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- MATHEMATICAL EXPLANATION -->
+
+            <div class="card shadow-sm mb-4">
+
+                <div class="card-header">
+
+                    <h5 class="mb-0">
+                        📐 Cosine Similarity Analysis
+                    </h5>
+
+                </div>
+
+                <div class="card-body">
+
+                    <p>
+                        The system compares the distinct terms in
+                        the complaint with the description terms of
+                        the selected fault category.
+                    </p>
+
+
+                    @if (Model.ComplaintCategory != null)
+                    {
+                        <div class="row">
+
+                            <div class="col-md-6">
+
+                                <div class="card bg-light">
+
+                                    <div class="card-body">
+
+                                        <h6>
+                                            Complaint Category
+                                        </h6>
+
+                                        <p class="mb-0">
+
+                                            <strong>
+                                                @Model.ComplaintCategory.CategoryName
+                                            </strong>
+
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <div class="card bg-light">
+
+                                    <div class="card-body">
+
+                                        <h6>
+                                            Description Terms
+                                        </h6>
+
+                                        <p class="mb-0">
+
+                                            @Model.ComplaintCategory.DescriptionTerms
+
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+                    }
+
+
+                    <div class="alert alert-info mt-4 mb-0">
+
+                        <strong>
+                            Formula:
+                        </strong>
+
+                        <br />
+
+                        Similarity = Common Terms /
+                        (√Complaint Terms × √Category Terms)
+
+                        <br />
+                        <br />
+
+                        <strong>
+                            Routing Rule:
+                        </strong>
+
+                        Similarity ≥ 80% → Automatic Routing
+
+                        <br />
+
+                        Similarity &lt; 80% → Manual Review
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ACTIONS -->
+
+            <div class="d-flex gap-2">
+
+                <a asp-action="Create"
+                   class="btn btn-primary">
+
+                    ➕ New Complaint
+
+                </a>
+
+
+                <a asp-action="Index"
+                   class="btn btn-secondary">
+
+                    📋 Complaint History
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

@@ -1,0 +1,762 @@
+﻿
+@model RetailSalesStockAnalytics.ViewModels.CustomerPurchasePatternViewModel
+
+@{
+    ViewData["Title"] = "Customer Purchase Pattern";
+
+    var topCustomers = Model.Customers
+        .OrderByDescending(x => x.PurchaseCount)
+        .Take(10)
+        .ToList();
+
+    var topProducts = Model.Products
+        .OrderByDescending(x => x.QuantityPurchased)
+        .Take(10)
+        .ToList();
+}
+
+<div class="container-fluid">
+
+    <!-- PAGE HEADER -->
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2>Customer Purchase Pattern</h2>
+
+            <p class="text-muted mb-0">
+                Analyze customer purchasing behavior
+            </p>
+        </div>
+
+    </div>
+
+
+    <!-- DATE FILTER -->
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <form asp-controller="CustomerPurchasePattern"
+                  asp-action="Index"
+                  method="get">
+
+                <div class="row align-items-end">
+
+                    <div class="col-md-4">
+
+                        <label class="form-label">
+                            Start Date
+                        </label>
+
+                        <input type="date"
+                               name="startDate"
+                               value="@Model.StartDate.ToString("yyyy-MM-dd")"
+                               class="form-control" />
+
+                    </div>
+
+
+                    <div class="col-md-4">
+
+                        <label class="form-label">
+                            End Date
+                        </label>
+
+                        <input type="date"
+                               name="endDate"
+                               value="@Model.EndDate.ToString("yyyy-MM-dd")"
+                               class="form-control" />
+
+                    </div>
+
+
+                    <div class="col-md-4">
+
+                        <button type="submit"
+                                class="btn btn-primary">
+
+                            🔎 Apply Filter
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- CUSTOMER SUMMARY -->
+
+    <div class="row mb-4">
+
+        <div class="col-md-4">
+
+            <div class="card shadow-sm">
+
+                <div class="card-body">
+
+                    <h6 class="text-muted">
+                        Total Customers
+                    </h6>
+
+                    <h2>
+                        @Model.TotalCustomers
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-4">
+
+            <div class="card shadow-sm">
+
+                <div class="card-body">
+
+                    <h6 class="text-muted">
+                        Repeat Customers
+                    </h6>
+
+                    <h2>
+                        @Model.RepeatCustomers
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-4">
+
+            <div class="card shadow-sm">
+
+                <div class="card-body">
+
+                    <h6 class="text-muted">
+                        Repeat Customer %
+                    </h6>
+
+                    <h2>
+                        @Model.RepeatCustomerPercentage.ToString("0.00")%
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ============================= -->
+    <!-- CHART ROW 1 -->
+    <!-- ============================= -->
+
+    <div class="row mb-4">
+
+
+        <!-- TOP CUSTOMERS -->
+
+        <div class="col-lg-6">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-header">
+
+                    <h5 class="mb-0">
+                        👥 Top Customers by Purchases
+                    </h5>
+
+                </div>
+
+                <div class="card-body">
+
+                    <canvas id="customerPurchaseChart"
+                            height="250">
+                    </canvas>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- PEAK HOURS -->
+
+        <div class="col-lg-6">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-header">
+
+                    <h5 class="mb-0">
+                        ⏰ Sales by Hour
+                    </h5>
+
+                </div>
+
+                <div class="card-body">
+
+                    <canvas id="hourlySalesChart"
+                            height="250">
+                    </canvas>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ============================= -->
+    <!-- PRODUCT CHART -->
+    <!-- ============================= -->
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header">
+
+            <h5 class="mb-0">
+                🛍️ Most Purchased Products
+            </h5>
+
+        </div>
+
+        <div class="card-body">
+
+            <canvas id="productPurchaseChart"
+                    height="120">
+            </canvas>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ============================= -->
+    <!-- CUSTOMER TABLE -->
+    <!-- ============================= -->
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header">
+
+            <h5 class="mb-0">
+                👥 Customer Purchase Analysis
+            </h5>
+
+        </div>
+
+
+        <div class="card-body">
+
+            @if (Model.Customers.Any())
+            {
+                <div class="table-responsive">
+
+                    <table class="table table-hover">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Customer</th>
+
+                                <th>Purchases</th>
+
+                                <th>Purchase %</th>
+
+                                <th>Total Spent</th>
+
+                                <th>Revenue %</th>
+
+                                <th>Customer Type</th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            @foreach (var customer in Model.Customers)
+                            {
+                                <tr>
+
+                                    <td class="fw-semibold">
+                                        @customer.CustomerName
+                                    </td>
+
+                                    <td>
+                                        @customer.PurchaseCount
+                                    </td>
+
+                                    <td>
+                                        @customer.PurchaseFrequencyPercentage.ToString("0.00")%
+                                    </td>
+
+                                    <td>
+                                        ৳@customer.TotalSpent.ToString("N2")
+                                    </td>
+
+                                    <td>
+                                        @customer.RevenueContributionPercentage.ToString("0.00")%
+                                    </td>
+
+                                    <td>
+
+                                        @if (customer.CustomerType == "Frequent")
+                                        {
+                                            <span class="badge bg-success">
+                                                Frequent
+                                            </span>
+                                        }
+                                        else if (customer.CustomerType == "Returning")
+                                        {
+                                            <span class="badge bg-warning text-dark">
+                                                Returning
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">
+                                                Single Visit
+                                            </span>
+                                        }
+
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+            else
+            {
+                <p class="text-muted mb-0">
+                    No customer purchase data found for the selected period.
+                </p>
+            }
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ============================= -->
+    <!-- HOURLY TABLE -->
+    <!-- ============================= -->
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header">
+
+            <h5 class="mb-0">
+                ⏰ Purchase Time Analysis
+            </h5>
+
+        </div>
+
+
+        <div class="card-body">
+
+            @if (Model.HourlyAnalysis.Any())
+            {
+                <div class="table-responsive">
+
+                    <table class="table table-hover">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Hour</th>
+
+                                <th>Sales</th>
+
+                                <th>Sales %</th>
+
+                                <th>Revenue</th>
+
+                                <th>Revenue %</th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            @foreach (var hour in Model.HourlyAnalysis)
+                            {
+                                <tr>
+
+                                    <td>
+
+                                        @DateTime.Today
+                                        .AddHours(hour.Hour)
+                                        .ToString("hh:00 tt")
+
+                                    </td>
+
+                                    <td>
+                                        @hour.SalesCount
+                                    </td>
+
+                                    <td>
+                                        @hour.SalesPercentage.ToString("0.00")%
+                                    </td>
+
+                                    <td>
+                                        ৳@hour.Revenue.ToString("N2")
+                                    </td>
+
+                                    <td>
+                                        @hour.RevenuePercentage.ToString("0.00")%
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+            else
+            {
+                <p class="text-muted mb-0">
+                    No hourly sales data found for the selected period.
+                </p>
+            }
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ============================= -->
+    <!-- PRODUCT TABLE -->
+    <!-- ============================= -->
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header">
+
+            <h5 class="mb-0">
+                🛍️ Product Purchase Analysis
+            </h5>
+
+        </div>
+
+
+        <div class="card-body">
+
+            @if (Model.Products.Any())
+            {
+                <div class="table-responsive">
+
+                    <table class="table table-hover">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Product</th>
+
+                                <th>Quantity Purchased</th>
+
+                                <th>Purchase %</th>
+
+                                <th>Revenue</th>
+
+                                <th>Revenue %</th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            @foreach (var product in Model.Products)
+                            {
+                                <tr>
+
+                                    <td class="fw-semibold">
+                                        @product.ProductName
+                                    </td>
+
+                                    <td>
+                                        @product.QuantityPurchased
+                                    </td>
+
+                                    <td>
+                                        @product.PurchasePercentage.ToString("0.00")%
+                                    </td>
+
+                                    <td>
+                                        ৳@product.Revenue.ToString("N2")
+                                    </td>
+
+                                    <td>
+                                        @product.RevenuePercentage.ToString("0.00")%
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+            else
+            {
+                <p class="text-muted mb-0">
+                    No product purchase data found for the selected period.
+                </p>
+            }
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ============================= -->
+<!-- CHART.JS -->
+<!-- ============================= -->
+@section Scripts {
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+    <script>
+
+        // ==========================================
+        // TOP CUSTOMERS
+        // ==========================================
+
+        const customerLabels = [
+            @foreach (var customer in topCustomers)
+            {
+                    @: "@Html.Raw(customer.CustomerName.Replace("\"", "\\\""))",
+            }
+        ];
+
+
+        const customerPurchaseData = [
+            @foreach (var customer in topCustomers)
+            {
+                    @: @customer.PurchaseCount,
+            }
+        ];
+
+
+        new Chart(
+            document.getElementById("customerPurchaseChart"),
+            {
+                type: "bar",
+
+                data:
+                {
+                    labels: customerLabels,
+
+                    datasets:
+                    [
+                        {
+                            label: "Number of Purchases",
+
+                            data: customerPurchaseData
+                        }
+                    ]
+                },
+
+                options:
+                {
+                    responsive: true,
+
+                    maintainAspectRatio: false,
+
+                    scales:
+                    {
+                        y:
+                        {
+                            beginAtZero: true,
+
+                            ticks:
+                            {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            }
+        );
+
+
+
+        // ==========================================
+        // HOURLY SALES
+        // ==========================================
+
+        const hourlyLabels = [
+            @foreach (var hour in Model.HourlyAnalysis)
+            {
+                    @: "@DateTime.Today.AddHours(hour.Hour).ToString("hh tt")",
+            }
+        ];
+
+
+        const hourlySalesData = [
+            @foreach (var hour in Model.HourlyAnalysis)
+            {
+                    @: @hour.SalesCount,
+            }
+        ];
+
+
+        new Chart(
+            document.getElementById("hourlySalesChart"),
+            {
+                type: "line",
+
+                data:
+                {
+                    labels: hourlyLabels,
+
+                    datasets:
+                    [
+                        {
+                            label: "Sales",
+
+                            data: hourlySalesData,
+
+                            tension: 0.3,
+
+                            fill: true
+                        }
+                    ]
+                },
+
+                options:
+                {
+                    responsive: true,
+
+                    maintainAspectRatio: false,
+
+                    scales:
+                    {
+                        y:
+                        {
+                            beginAtZero: true,
+
+                            ticks:
+                            {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            }
+        );
+
+
+
+        // ==========================================
+        // TOP PRODUCTS
+        // ==========================================
+
+        const productLabels = [
+            @foreach (var product in topProducts)
+            {
+                    @: "@Html.Raw(product.ProductName.Replace("\"", "\\\""))",
+            }
+        ];
+
+
+        const productQuantityData = [
+            @foreach (var product in topProducts)
+            {
+                    @: @product.QuantityPurchased,
+            }
+        ];
+
+
+        new Chart(
+            document.getElementById("productPurchaseChart"),
+            {
+                type: "bar",
+
+                data:
+                {
+                    labels: productLabels,
+
+                    datasets:
+                    [
+                        {
+                            label: "Quantity Purchased",
+
+                            data: productQuantityData
+                        }
+                    ]
+                },
+
+                options:
+                {
+                    responsive: true,
+
+                    maintainAspectRatio: false,
+
+                    indexAxis: "y",
+
+                    scales:
+                    {
+                        x:
+                        {
+                            beginAtZero: true,
+
+                            ticks:
+                            {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            }
+        );
+
+    </script>
+
+}
+

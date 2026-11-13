@@ -1,0 +1,464 @@
+﻿
+@model RetailSalesStockAnalytics.ViewModels.Reports.StockMovementReportViewModel
+
+@{
+    ViewData["Title"] = "Stock Movement Report";
+}
+
+<div class="container-fluid">
+
+    <!-- PAGE HEADER -->
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h2 class="mb-1">
+                🔄 Stock Movement Report
+            </h2>
+
+            <p class="text-muted mb-0">
+                Monitor stock-in, stock-out and adjustment activities
+            </p>
+
+        </div>
+
+        <div>
+
+            <a asp-controller="Reports"
+               asp-action="Index"
+               class="btn btn-outline-secondary">
+
+                ← Reports Center
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- DATE FILTER -->
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header">
+
+            <strong>
+                Report Period
+            </strong>
+
+        </div>
+
+        <div class="card-body">
+
+            <form asp-action="StockMovement"
+                  method="get">
+
+                <div class="row align-items-end">
+
+                    <!-- START DATE -->
+
+                    <div class="col-md-4 mb-3">
+
+                        <label class="form-label">
+                            Start Date
+                        </label>
+
+                        <input type="date"
+                               name="startDate"
+                               value="@Model.StartDate?.ToString("yyyy-MM-dd")"
+                               class="form-control" />
+
+                    </div>
+
+
+                    <!-- END DATE -->
+
+                    <div class="col-md-4 mb-3">
+
+                        <label class="form-label">
+                            End Date
+                        </label>
+
+                        <input type="date"
+                               name="endDate"
+                               value="@Model.EndDate?.ToString("yyyy-MM-dd")"
+                               class="form-control" />
+
+                    </div>
+
+
+                    <!-- BUTTON -->
+
+                    <div class="col-md-4 mb-3">
+
+                        <button type="submit"
+                                class="btn btn-primary">
+
+                            🔍 Generate Report
+
+                        </button>
+
+                        <a asp-action="StockMovement"
+                           class="btn btn-outline-secondary">
+
+                            Reset
+
+                        </a>
+
+                    </div>
+                    <div class="mt-2">
+
+                        <a asp-action="ExportStockMovementPdf"
+                           asp-route-startDate="@Model.StartDate?.ToString("yyyy-MM-dd")"
+                           asp-route-endDate="@Model.EndDate?.ToString("yyyy-MM-dd")"
+                           class="btn btn-danger btn-sm">
+
+                            📄 Export PDF
+
+                        </a>
+
+
+                        <a asp-action="ExportStockMovementExcel"
+                           asp-route-startDate="@Model.StartDate?.ToString("yyyy-MM-dd")"
+                           asp-route-endDate="@Model.EndDate?.ToString("yyyy-MM-dd")"
+                           class="btn btn-success btn-sm">
+
+                            📊 Export Excel
+
+                        </a>
+
+                    </div>
+                    
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- SUMMARY CARDS -->
+
+    <div class="row">
+
+        <!-- TOTAL TRANSACTIONS -->
+
+        <div class="col-md-3 mb-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <small class="text-muted">
+                        Total Transactions
+                    </small>
+
+                    <h3 class="mt-2">
+                        @Model.TotalTransactions
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- STOCK IN -->
+
+        <div class="col-md-3 mb-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <small class="text-muted">
+                        Stock In
+                    </small>
+
+                    <h3 class="mt-2">
+                        @Model.TotalStockIn
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- STOCK OUT -->
+
+        <div class="col-md-3 mb-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <small class="text-muted">
+                        Stock Out
+                    </small>
+
+                    <h3 class="mt-2">
+                        @Model.TotalStockOut
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ADJUSTMENTS -->
+
+        <div class="col-md-3 mb-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <small class="text-muted">
+                        Adjustments
+                    </small>
+
+                    <h3 class="mt-2">
+                        @Model.TotalAdjustments
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- MOVEMENT TABLE -->
+
+    <div class="card shadow-sm">
+
+        <div class="card-header d-flex justify-content-between align-items-center">
+
+            <strong>
+                Stock Movement Details
+            </strong>
+
+            <span class="text-muted">
+
+                @Model.Movements.Count movement(s)
+
+            </span>
+
+        </div>
+
+
+        <div class="card-body p-0">
+
+            @if (Model.Movements.Any())
+            {
+                <div class="table-responsive">
+
+                    <table class="table table-hover mb-0">
+
+                        <thead class="table-light">
+
+                            <tr>
+
+                                <th>
+                                    Date
+                                </th>
+
+                                <th>
+                                    Product
+                                </th>
+
+                                <th>
+                                    Transaction Type
+                                </th>
+
+                                <th class="text-center">
+                                    Quantity
+                                </th>
+
+                                <th class="text-end">
+                                    Unit Cost
+                                </th>
+
+                                <th class="text-end">
+                                    Total Cost
+                                </th>
+
+                                <th>
+                                    Note
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            @foreach (var row in Model.Movements)
+                            {
+                                <tr>
+
+                                    <td>
+                                        @row.Date.ToString("dd MMM yyyy HH:mm")
+                                    </td>
+
+                                    <td class="fw-semibold">
+                                        @row.ProductName
+                                    </td>
+
+                                    <td>
+
+                                        @if (
+                                                                        row.TransactionType
+                                                                        .Equals(
+                                                                        "Restock",
+                                                                        StringComparison.OrdinalIgnoreCase)
+                                                                        ||
+                                                                        row.TransactionType
+                                                                        .Equals(
+                                                                        "Stock In",
+                                                                        StringComparison.OrdinalIgnoreCase)
+                                                                        ||
+                                                                        row.TransactionType
+                                                                        .Equals(
+                                                                        "In",
+                                                                        StringComparison.OrdinalIgnoreCase)
+                                                                        )
+                                        {
+                                            <span class="badge bg-success">
+                                                @row.TransactionType
+                                            </span>
+                                        }
+                                        else if (
+                                        row.TransactionType
+                                        .Equals(
+                                        "Sale",
+                                        StringComparison.OrdinalIgnoreCase)
+                                        ||
+                                        row.TransactionType
+                                        .Equals(
+                                        "Stock Out",
+                                        StringComparison.OrdinalIgnoreCase)
+                                        ||
+                                        row.TransactionType
+                                        .Equals(
+                                        "Out",
+                                        StringComparison.OrdinalIgnoreCase)
+                                        )
+                                        {
+                                            <span class="badge bg-danger">
+                                                @row.TransactionType
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark">
+                                                @row.TransactionType
+                                            </span>
+                                        }
+
+                                    </td>
+
+                                    <td class="text-center">
+
+                                        @if (row.Quantity > 0)
+                                        {
+                                            <span class="text-success fw-semibold">
+                                                +@row.Quantity
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-danger fw-semibold">
+                                                @row.Quantity
+                                            </span>
+                                        }
+
+                                </td>
+
+                                <td class="text-end">
+                                    ৳ @row.UnitCost.ToString("N2")
+                                </td>
+
+                                <td class="text-end">
+                                    ৳ @row.TotalCost.ToString("N2")
+                                </td>
+
+                                <td>
+                                    @(string.IsNullOrWhiteSpace(row.Note)
+                                                                    ? "-"
+                                                                    : row.Note)
+                            </td>
+
+                                </tr>
+                                                }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+            else
+            {
+                <div class="p-5 text-center">
+
+                    <h5 class="text-muted">
+                        No stock movements found
+                    </h5>
+
+                    <p class="text-muted mb-0">
+                        Try selecting a different date range.
+                    </p>
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+
+    <!-- REPORT PERIOD -->
+
+    <div class="alert alert-info mt-4">
+
+        <strong>Report Period:</strong>
+
+        @if (Model.StartDate.HasValue ||
+                Model.EndDate.HasValue)
+        {
+            <span>
+
+                @(Model.StartDate?.ToString("dd MMM yyyy")
+                            ?? "Beginning")
+
+                —
+
+                @(Model.EndDate?.ToString("dd MMM yyyy")
+                            ?? "Today")
+
+        </span>
+                }
+        else
+        {
+            <span>
+                All available stock transactions
+            </span>
+        }
+
+    </div>
+
+</div>
+

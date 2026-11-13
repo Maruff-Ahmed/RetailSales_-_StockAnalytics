@@ -1,0 +1,25 @@
+@{
+    ViewData["Title"] = "Access Denied";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6 text-center">
+            <div class="card border-0 shadow-sm p-4 p-md-5 rounded-4 bg-white">
+                <div class="mb-3">
+                    <span style="font-size: 3.5rem;">🚫</span>
+                </div>
+                <h2 class="fw-bold text-danger mb-2">Access Denied</h2>
+                <p class="text-muted mb-4">
+                    You do not have the required permissions to access this page or perform this operation.
+                </p>
+                <div class="d-flex justify-content-center gap-2">
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-primary px-4 shadow-sm">
+                        Return to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

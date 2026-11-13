@@ -1,0 +1,525 @@
+﻿
+@model RetailSalesStockAnalytics.ViewModels.Reports.ComplaintRoutingReportViewModel
+
+@{
+    ViewData["Title"] = "AI Complaint Routing Log";
+}
+
+<div class="container-fluid">
+
+    <!-- PAGE HEADER -->
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h2 class="mb-1">
+                🤖 AI Complaint Routing Log
+            </h2>
+
+            <p class="text-muted mb-0">
+                History of AI complaint analysis and routing decisions
+            </p>
+
+        </div>
+
+        <div>
+
+            <a asp-controller="Reports"
+               asp-action="Index"
+               class="btn btn-outline-secondary">
+
+                ← Reports Center
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- DATE FILTER -->
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header">
+
+            <strong>
+                Report Period
+            </strong>
+
+        </div>
+
+        <div class="card-body">
+
+            <form asp-action="ComplaintRouting"
+                  method="get">
+
+                <div class="row align-items-end">
+
+                    <!-- START DATE -->
+
+                    <div class="col-md-4 mb-3">
+
+                        <label class="form-label">
+                            Start Date
+                        </label>
+
+                        <input type="date"
+                               name="startDate"
+                               value="@Model.StartDate?.ToString("yyyy-MM-dd")"
+                               class="form-control" />
+
+                    </div>
+
+
+                    <!-- END DATE -->
+
+                    <div class="col-md-4 mb-3">
+
+                        <label class="form-label">
+                            End Date
+                        </label>
+
+                        <input type="date"
+                               name="endDate"
+                               value="@Model.EndDate?.ToString("yyyy-MM-dd")"
+                               class="form-control" />
+
+                    </div>
+
+
+                    <!-- BUTTON -->
+
+                    <div class="col-md-4 mb-3">
+
+                        <button type="submit"
+                                class="btn btn-primary">
+
+                            🔍 Generate Report
+
+                        </button>
+
+                        <a asp-action="ComplaintRouting"
+                           class="btn btn-outline-secondary">
+
+                            Reset
+
+                        </a>
+
+                    </div>
+                   
+                    <div class="mt-2">
+
+                        <a asp-action="ExportComplaintRoutingPdf"
+                           asp-route-startDate="@Model.StartDate?.ToString("yyyy-MM-dd")"
+                           asp-route-endDate="@Model.EndDate?.ToString("yyyy-MM-dd")"
+                           class="btn btn-danger btn-sm">
+
+                            📄 Export PDF
+
+                        </a>
+
+
+                        <a asp-action="ExportComplaintRoutingExcel"
+                           asp-route-startDate="@Model.StartDate?.ToString("yyyy-MM-dd")"
+                           asp-route-endDate="@Model.EndDate?.ToString("yyyy-MM-dd")"
+                           class="btn btn-success btn-sm">
+
+                            📊 Export Excel
+
+                        </a>
+
+                    </div>
+                  
+
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- SUMMARY CARDS -->
+
+    <div class="row">
+
+        <!-- TOTAL -->
+
+        <div class="col-md-3 mb-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <small class="text-muted">
+                        Total Complaints
+                    </small>
+
+                    <h3 class="mt-2">
+                        @Model.TotalComplaints
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ROUTED -->
+
+        <div class="col-md-3 mb-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <small class="text-muted">
+                        AI Routed
+                    </small>
+
+                    <h3 class="mt-2 text-success">
+                        @Model.RoutedComplaints
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- PENDING -->
+
+        <div class="col-md-3 mb-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <small class="text-muted">
+                        Pending
+                    </small>
+
+                    <h3 class="mt-2 text-warning">
+                        @Model.PendingComplaints
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- MANUAL REVIEW -->
+
+        <div class="col-md-3 mb-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <small class="text-muted">
+                        Manual Review
+                    </small>
+
+                    <h3 class="mt-2 text-danger">
+                        @Model.ManualReviewComplaints
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- AI SCORE -->
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <div class="d-flex justify-content-between align-items-center">
+
+                <div>
+
+                    <h6 class="mb-1">
+                        Average AI Similarity Score
+                    </h6>
+
+                    <small class="text-muted">
+                        Average similarity between complaints
+                        and matched fault categories
+                    </small>
+
+                </div>
+
+                <div>
+
+                    <h3 class="mb-0">
+
+                        @Model.AverageSimilarityScore.ToString("0.00")%
+
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- COMPLAINT LOG -->
+
+    <div class="card shadow-sm">
+
+        <div class="card-header d-flex justify-content-between align-items-center">
+
+            <strong>
+                Complaint Routing History
+            </strong>
+
+            <span class="text-muted">
+
+                @Model.Complaints.Count record(s)
+
+            </span>
+
+        </div>
+
+
+        <div class="card-body p-0">
+
+            @if (Model.Complaints.Any())
+            {
+                <div class="table-responsive">
+
+                    <table class="table table-hover mb-0">
+
+                        <thead class="table-light">
+
+                            <tr>
+
+                                <th>
+                                    Code
+                                </th>
+
+                                <th>
+                                    Date
+                                </th>
+
+                                <th>
+                                    Customer
+                                </th>
+
+                                <th style="min-width: 250px;">
+                                    Complaint
+                                </th>
+
+                                <th>
+                                    Category
+                                </th>
+
+                                <th class="text-center">
+                                    Similarity
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            @foreach (var row in Model.Complaints)
+                            {
+                                <tr>
+
+                                    <!-- CODE -->
+
+                                    <td class="fw-semibold">
+                                        @row.ComplaintCode
+                                    </td>
+
+
+                                    <!-- DATE -->
+
+                                    <td>
+                                        @row.CreatedAt.ToString("dd MMM yyyy HH:mm")
+                                    </td>
+
+
+                                    <!-- CUSTOMER -->
+
+                                    <td>
+                                        @row.CustomerName
+                                    </td>
+
+
+                                    <!-- COMPLAINT -->
+
+                                    <td>
+
+                                        <span title="@row.ComplaintText">
+
+                                            @if (row.ComplaintText.Length > 100)
+                                            {
+                                                @row.ComplaintText.Substring(0, 100)
+
+                                                <span>...</span>
+                                            }
+                                            else
+                                            {
+                                                @row.ComplaintText
+                                            }
+
+                                        </span>
+
+                                    </td>
+
+
+                                    <!-- CATEGORY -->
+
+                                    <td>
+                                        @row.CategoryName
+                                    </td>
+
+
+                                    <!-- SCORE -->
+
+                                    <td class="text-center">
+
+                                        <strong>
+                                            @row.SimilarityScore.ToString("0.00")%
+                                        </strong>
+
+                                    </td>
+
+
+                                    <!-- STATUS -->
+
+                                    <td>
+
+                                        @if (
+                                                                        row.RoutingStatus.Equals(
+                                                                        "Routed",
+                                                                        StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            <span class="badge bg-success">
+                                                Routed
+                                            </span>
+                                        }
+                                        else if (
+                                        row.RoutingStatus.Equals(
+                                        "Pending",
+                                        StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            <span class="badge bg-warning text-dark">
+                                                Pending
+                                            </span>
+                                        }
+                                        else if (
+                                        row.RoutingStatus.Equals(
+                                        "Manual Review",
+                                        StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            <span class="badge bg-danger">
+                                                Manual Review
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">
+                                                @row.RoutingStatus
+                                            </span>
+                                        }
+
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+            else
+            {
+                <div class="p-5 text-center">
+
+                    <h5 class="text-muted">
+                        No complaint history found
+                    </h5>
+
+                    <p class="text-muted mb-0">
+                        Try selecting a different date range.
+                    </p>
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+
+    <!-- INFORMATION -->
+
+    <div class="alert alert-info mt-4">
+
+        <strong>Report Information:</strong>
+
+        This report records the complaint text, customer,
+        matched complaint category, AI similarity score,
+        and routing status generated by Module 4.
+
+    </div>
+
+
+    <!-- REPORT PERIOD -->
+
+    <div class="alert alert-secondary">
+
+        <strong>Report Period:</strong>
+
+        @if (Model.StartDate.HasValue ||
+                Model.EndDate.HasValue)
+        {
+            <span>
+
+                @(Model.StartDate?.ToString("dd MMM yyyy")
+                            ?? "Beginning")
+
+                —
+
+                @(Model.EndDate?.ToString("dd MMM yyyy")
+                            ?? "Today")
+
+        </span>
+                }
+        else
+        {
+            <span>
+                All available complaint history
+            </span>
+        }
+
+    </div>
+
+</div>

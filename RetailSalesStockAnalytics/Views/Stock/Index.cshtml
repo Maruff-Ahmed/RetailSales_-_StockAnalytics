@@ -1,0 +1,353 @@
+@model RetailSalesStockAnalytics.ViewModels.StockDashboardViewModel
+
+@{
+    ViewData["Title"] = "Stock Management";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+
+        <h1>Stock Management</h1>
+
+        <p class="text-muted mb-0">
+            Monitor inventory and stock levels.
+        </p>
+
+    </div>
+
+
+    <div>
+
+        <a asp-controller="StockTransactions"
+           asp-action="Index"
+           class="btn btn-outline-secondary me-2">
+
+            Stock History
+
+        </a>
+
+        @if (User.IsInRole("Admin"))
+        {
+            <a asp-controller="Stock"
+               asp-action="Adjust"
+               class="btn btn-outline-warning me-2">
+
+                Adjust Stock
+
+            </a>
+        }
+
+        <a asp-controller="Stock"
+           asp-action="Create"
+           class="btn btn-primary">
+
+            + Restock
+
+        </a>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     SUMMARY CARDS
+     ========================================================= -->
+
+<div class="row">
+
+    <!-- Total Products -->
+
+    <div class="col-md-3 mb-3">
+
+        <div class="card shadow-sm">
+
+            <div class="card-body">
+
+                <h6 class="text-muted">
+                    Total Products
+                </h6>
+
+                <h2>
+                    @Model.TotalProducts
+                </h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Total Stock -->
+
+    <div class="col-md-3 mb-3">
+
+        <div class="card shadow-sm">
+
+            <div class="card-body">
+
+                <h6 class="text-muted">
+                    Total Stock Units
+                </h6>
+
+                <h2>
+                    @Model.TotalStockUnits
+                </h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Inventory Value -->
+
+    <div class="col-md-3 mb-3">
+
+        <div class="card shadow-sm">
+
+            <div class="card-body">
+
+                <h6 class="text-muted">
+                    Inventory Value
+                </h6>
+
+                <h2>
+                    ৳@Model.TotalInventoryValue.ToString("N2")
+                </h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Low Stock -->
+
+    <div class="col-md-3 mb-3">
+
+        <div class="card shadow-sm">
+
+            <div class="card-body">
+
+                <h6 class="text-muted">
+                    Low / Out of Stock
+                </h6>
+
+                <h2>
+                    @(Model.LowStockProducts + Model.OutOfStockProducts)
+                </h2>
+
+                <small class="text-muted">
+
+                    Low:
+                    @Model.LowStockProducts
+
+                    |
+
+                    Out:
+                    @Model.OutOfStockProducts
+
+                </small>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     STOCK TABLE
+     ========================================================= -->
+
+<div class="card shadow-sm mt-4">
+
+    <div class="card-body">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+
+            <h4 class="mb-0">
+                Current Stock
+            </h4>
+
+            <span class="text-muted">
+                @Model.Products.Count products
+            </span>
+
+        </div>
+
+
+        <!-- Stock Filters -->
+
+        <div class="mb-3">
+
+            <a asp-controller="Stock"
+               asp-action="Index"
+               class="btn @(ViewBag.Status == null ? "btn-primary" : "btn-outline-primary")">
+
+                All Products
+
+            </a>
+
+
+            <a asp-controller="Stock"
+               asp-action="Index"
+               asp-route-status="Low"
+               class="btn @(ViewBag.Status == "Low" ? "btn-warning" : "btn-outline-warning")">
+
+                Low Stock
+
+                <span class="badge bg-warning text-dark">
+                    @Model.LowStockProducts
+                </span>
+
+            </a>
+
+
+            <a asp-controller="Stock"
+               asp-action="Index"
+               asp-route-status="Out"
+               class="btn @(ViewBag.Status == "Out" ? "btn-danger" : "btn-outline-danger")">
+
+                Out of Stock
+
+                <span class="badge bg-danger">
+                    @Model.OutOfStockProducts
+                </span>
+
+            </a>
+
+        </div>
+
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle">
+
+                <thead class="table-light">
+
+                    <tr>
+
+                        <th>
+                            Product
+                        </th>
+
+                        <th>
+                            Category
+                        </th>
+
+                        <th>
+                            Stock
+                        </th>
+
+                        <th>
+                            Reorder Level
+                        </th>
+
+                        <th>
+                            Purchase Price
+                        </th>
+
+                        <th>
+                            Inventory Value
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    @if (Model.Products.Any())
+                    {
+                        foreach (var product in Model.Products)
+                        {
+                            <tr>
+
+                                <td>
+                                    <strong>
+                                        @product.ProductName
+                                    </strong>
+                                </td>
+
+                                <td>
+                                    @product.CategoryName
+                                </td>
+
+                                <td>
+                                    @product.StockQuantity
+                                </td>
+
+                                <td>
+                                    @product.ReorderLevel
+                                </td>
+
+                                <td>
+                                    ৳@product.PurchasePrice.ToString("N2")
+                                </td>
+
+                                <td>
+                                    ৳@product.InventoryValue.ToString("N2")
+                                </td>
+
+                                <td>
+
+                                    @if (product.Status == "Out of Stock")
+                                    {
+                                        <span class="badge bg-danger">
+                                            Out of Stock
+                                        </span>
+                                    }
+                                    else if (product.Status == "Low Stock")
+                                    {
+                                        <span class="badge bg-warning text-dark">
+                                            Low Stock
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">
+                                            Normal
+                                        </span>
+                                    }
+
+                                </td>
+
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+
+                            <td colspan="7"
+                                class="text-center text-muted py-4">
+
+                                No products found.
+
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>

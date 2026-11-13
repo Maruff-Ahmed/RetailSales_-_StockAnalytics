@@ -1,0 +1,178 @@
+@model List<RetailSalesStockAnalytics.ViewModels.StockTransactionViewModel>
+
+@{
+    ViewData["Title"] = "Stock Transaction History";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+        <h1>Stock Transaction History</h1>
+
+        <p class="text-muted mb-0">
+            View all stock movements and restocking activities.
+        </p>
+    </div>
+
+    <a asp-controller="Stock"
+       asp-action="Index"
+       class="btn btn-secondary">
+
+        ← Stock Dashboard
+
+    </a>
+
+</div>
+
+
+<div class="card shadow-sm">
+
+    <div class="card-body">
+
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle">
+
+                <thead class="table-light">
+
+                    <tr>
+
+                        <th>
+                            Date
+                        </th>
+
+                        <th>
+                            Product
+                        </th>
+
+                        <th>
+                            Transaction Type
+                        </th>
+
+                        <th>
+                            Quantity
+                        </th>
+
+                        <th>
+                            Unit Cost
+                        </th>
+
+                        <th>
+                            Total Cost
+                        </th>
+
+                        <th>
+                            Note
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    @if (Model.Any())
+                    {
+                        foreach (var transaction in Model)
+                        {
+                            <tr>
+
+                                <td>
+                                    @transaction.TransactionDate
+                                    .ToString("dd-MMM-yyyy HH:mm")
+                                </td>
+
+                                <td>
+                                    <strong>
+                                        @transaction.ProductName
+                                    </strong>
+                                </td>
+
+                                <td>
+
+                                    @if (transaction.TransactionType == "Restock")
+                                    {
+                                        <span class="badge bg-success">
+                                            Restock
+                                        </span>
+                                    }
+                                    else if (transaction.TransactionType == "Sale")
+                                    {
+                                        <span class="badge bg-danger">
+                                            Sale
+                                        </span>
+                                    }
+                                    else if (transaction.TransactionType == "Sale Cancellation")
+                                    {
+                                        <span class="badge bg-info text-dark">
+                                            Cancellation
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">
+                                            @transaction.TransactionType
+                                        </span>
+                                    }
+
+                        </td>
+
+                        <td>
+
+                            @if (transaction.Quantity > 0)
+                            {
+                                <span class="text-success fw-bold">
+                                    +@transaction.Quantity
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="text-danger fw-bold">
+                                    @transaction.Quantity
+                                </span>
+                            }
+
+                        </td>
+
+                        <td>
+                            ৳@transaction.UnitCost.ToString("N2")
+                        </td>
+
+                        <td>
+                            <strong>
+                                ৳@transaction.TotalCost.ToString("N2")
+                            </strong>
+                        </td>
+
+                        <td>
+                            @(string.IsNullOrWhiteSpace(transaction.Note)
+                                                        ? "-"
+                                                        : transaction.Note)
+                        </td>
+
+                            </tr>
+                                        }
+                    }
+                    else
+                    {
+                        <tr>
+
+                            <td colspan="7"
+                                class="text-center text-muted py-5">
+
+                                No stock transactions found.
+
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>

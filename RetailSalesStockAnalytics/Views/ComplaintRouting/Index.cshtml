@@ -1,0 +1,235 @@
+﻿
+@model IEnumerable<RetailSalesStockAnalytics.Models.Complaint>
+
+@{
+    ViewData["Title"] = "Complaint History";
+}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2>🤖 AI Complaint Routing</h2>
+
+            <p class="text-muted mb-0">
+                Complaint history and automatic routing results
+            </p>
+        </div>
+
+        <a asp-action="Create"
+           class="btn btn-primary">
+
+            ➕ New Complaint
+
+        </a>
+
+    </div>
+
+
+    <div class="card shadow-sm">
+
+        <div class="card-body">
+
+            @if (!Model.Any())
+            {
+                <div class="text-center py-5">
+
+                    <h5>
+                        No complaints found
+                    </h5>
+
+                    <p class="text-muted">
+                        Create a complaint to start AI routing.
+                    </p>
+
+                    <a asp-action="Create"
+                       class="btn btn-primary">
+
+                        Create Complaint
+
+                    </a>
+
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle">
+
+                        <thead class="table-dark">
+
+                            <tr>
+
+                                <th>
+                                    Complaint ID
+                                </th>
+
+                                <th>
+                                    Customer
+                                </th>
+
+                                <th>
+                                    Complaint
+                                </th>
+
+                                <th>
+                                    Fault Category
+                                </th>
+
+                                <th>
+                                    Department
+                                </th>
+
+                                <th>
+                                    Similarity
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Date
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            @foreach (var complaint in Model)
+                            {
+                                var percentage =
+                                complaint.SimilarityScore * 100;
+
+                                <tr>
+
+                                    <td>
+
+                                        <strong>
+                                            @complaint.ComplaintCode
+                                        </strong>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        @complaint.Customer?.Name
+
+                                    </td>
+
+
+                                    <td style="max-width: 250px;">
+
+                                        <span>
+                                            @complaint.ComplaintText
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        @if (complaint.ComplaintCategory != null)
+                                        {
+                                            <span>
+                                                @complaint.ComplaintCategory.CategoryName
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                Not identified
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+                                    <td>
+
+                                        @if (complaint.ComplaintCategory != null)
+                                        {
+                                            @complaint.ComplaintCategory.Department
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                Manual Review
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <strong>
+                                            @percentage.ToString("0.00")%
+                                        </strong>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        @if (complaint.RoutingStatus == "Routed")
+                                        {
+                                            <span class="badge bg-success">
+                                                Routed
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark">
+                                                Manual Review
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+                                    <td>
+
+                                        @complaint.CreatedAt.ToString(
+                                        "dd MMM yyyy")
+
+                            </td>
+
+
+                            <td>
+
+                                <a asp-action="Result"
+                                   asp-route-id="@complaint.ComplaintId"
+                                   class="btn btn-sm btn-outline-primary">
+
+                                    View
+
+                                </a>
+
+                            </td>
+
+                        </tr>
+                                                }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+</div>

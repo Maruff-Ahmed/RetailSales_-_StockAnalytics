@@ -1,0 +1,195 @@
+@model RetailSalesStockAnalytics.Models.Sale
+
+@{
+    ViewData["Title"] = "Sale Details";
+    var subtotal = Model.SaleItems != null && Model.SaleItems.Any()
+        ? Model.SaleItems.Sum(i => i.Quantity * i.UnitPrice)
+        : Model.TotalAmount + Model.Discount;
+}
+
+<div class="container-fluid px-0 py-3">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <h2 class="fw-bold text-dark mb-0">Sale #@Model.SaleId</h2>
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1.5 fw-medium">
+                    Completed Transaction
+                </span>
+            </div>
+            <p class="text-muted small mb-0">Detailed summary of customer purchase, line items, and financial totals.</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <a asp-action="Index" class="btn btn-outline-secondary d-inline-flex align-items-center gap-1 shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z" />
+                </svg>
+                <span>Back to List</span>
+            </a>
+            <a asp-action="Edit" asp-route-id="@Model.SaleId" class="btn btn-primary d-inline-flex align-items-center gap-1 shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                    <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"/>
+                </svg>
+                <span>Edit Sale</span>
+            </a>
+            @if (User.IsInRole("Admin"))
+            {
+                <a asp-action="Delete" asp-route-id="@Model.SaleId" class="btn btn-outline-danger d-inline-flex align-items-center gap-1 shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                        <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                    </svg>
+                    <span>Cancel &amp; Delete</span>
+                </a>
+            }
+        </div>
+    </div>
+
+    <!-- Transaction Overview & Customer Info Cards -->
+    <div class="row g-4 mb-4">
+        <!-- Customer Info Card -->
+        <div class="col-md-6 col-lg-5">
+            <div class="card border-0 shadow-sm rounded-3 h-100">
+                <div class="card-body p-4">
+                    <h6 class="fw-semibold text-secondary text-uppercase small tracking-wide mb-3">Customer Information</h6>
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center fw-bold fs-5" style="width: 44px; height: 44px;">
+                            @(string.IsNullOrWhiteSpace(Model.Customer?.Name) ? "C" : Model.Customer.Name.Substring(0, 1).ToUpper())
+                        </div>
+                        <div>
+                            <div class="fw-bold text-dark fs-6">
+                                @(string.IsNullOrWhiteSpace(Model.Customer?.Name) ? "Walk-in Customer" : Model.Customer.Name)
+                            </div>
+                            <span class="text-muted small">Customer ID: #@Model.CustomerId</span>
+                        </div>
+                    </div>
+                    <dl class="row mb-0 small">
+                        <dt class="col-sm-4 text-muted fw-normal">Phone</dt>
+                        <dd class="col-sm-8 text-dark fw-medium mb-2">@(string.IsNullOrWhiteSpace(Model.Customer?.Phone) ? "-" : Model.Customer.Phone)</dd>
+
+                        <dt class="col-sm-4 text-muted fw-normal">Email</dt>
+                        <dd class="col-sm-8 text-dark fw-medium mb-0">@(string.IsNullOrWhiteSpace(Model.Customer?.Email) ? "-" : Model.Customer.Email)</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transaction Details Card -->
+        <div class="col-md-6 col-lg-7">
+            <div class="card border-0 shadow-sm rounded-3 h-100">
+                <div class="card-body p-4">
+                    <h6 class="fw-semibold text-secondary text-uppercase small tracking-wide mb-3">Transaction Details</h6>
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <div class="p-3 bg-light rounded-3 border border-light-subtle">
+                                <span class="text-muted small d-block mb-1">Transaction Date</span>
+                                <span class="fw-semibold text-dark">
+                                    @Model.SaleDate.ToString("dd MMM yyyy, hh:mm tt")
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="p-3 bg-light rounded-3 border border-light-subtle">
+                                <span class="text-muted small d-block mb-1">Final Amount</span>
+                                <h4 class="fw-bold font-monospace text-success mb-0">
+                                    ৳@Model.TotalAmount.ToString("N2")
+                                </h4>
+                            </div>
+                        </div>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(Model.CheckoutToken))
+                    {
+                        <div class="mt-3 pt-3 border-top">
+                            <span class="text-muted small">Idempotency Token:</span>
+                            <code class="text-secondary small font-monospace">@Model.CheckoutToken</code>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Line Items Table Card -->
+    <div class="card border-0 shadow-sm rounded-3 overflow-hidden mb-4">
+        <div class="card-header bg-white border-bottom py-3">
+            <h5 class="fw-bold text-dark mb-0">Purchased Items</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light text-secondary border-bottom">
+                        <tr>
+                            <th scope="col" class="ps-4 py-3 fw-semibold" style="width: 50px;">#</th>
+                            <th scope="col" class="py-3 fw-semibold">Product Name</th>
+                            <th scope="col" class="py-3 fw-semibold text-center" style="width: 140px;">Quantity</th>
+                            <th scope="col" class="py-3 fw-semibold text-end" style="width: 160px;">Unit Price</th>
+                            <th scope="col" class="pe-4 py-3 text-end fw-semibold" style="width: 180px;">Line Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.SaleItems == null || !Model.SaleItems.Any())
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center py-5 text-muted">
+                                    <div class="py-3">
+                                        <p class="mb-1 fw-semibold">No line items recorded</p>
+                                        <small>This sale does not contain itemized breakdown details.</small>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            var index = 1;
+                            @foreach (var item in Model.SaleItems)
+                            {
+                                var lineTotal = item.Quantity * item.UnitPrice;
+                                <tr>
+                                    <td class="ps-4 py-3 text-muted">@(index++)</td>
+                                    <td class="py-3 fw-semibold text-dark">
+                                        @(item.Product?.Name ?? $"Product #{item.ProductId}")
+                                    </td>
+                                    <td class="py-3 text-center">
+                                        <span class="badge bg-light text-dark border px-2.5 py-1 rounded-pill fw-medium">
+                                            @item.Quantity
+                                        </span>
+                                    </td>
+                                    <td class="py-3 text-end font-monospace text-secondary">
+                                        ৳@item.UnitPrice.ToString("N2")
+                                    </td>
+                                    <td class="pe-4 py-3 text-end font-monospace fw-bold text-dark">
+                                        ৳@lineTotal.ToString("N2")
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Financial Summary Card -->
+    <div class="row justify-content-end">
+        <div class="col-md-6 col-lg-4">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-body p-4">
+                    <h6 class="fw-semibold text-secondary text-uppercase small tracking-wide mb-3">Order Summary</h6>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted small">Subtotal</span>
+                        <span class="font-monospace fw-semibold text-dark">৳@subtotal.ToString("N2")</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted small">Discount</span>
+                        <span class="font-monospace text-danger">-৳@Model.Discount.ToString("N2")</span>
+                    </div>
+                    <hr class="my-3 text-muted opacity-25" />
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fw-bold text-dark">Total Amount</span>
+                        <h4 class="fw-bold font-monospace text-success mb-0">৳@Model.TotalAmount.ToString("N2")</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

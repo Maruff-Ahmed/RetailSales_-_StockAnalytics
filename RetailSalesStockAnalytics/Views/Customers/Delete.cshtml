@@ -1,0 +1,98 @@
+@model RetailSalesStockAnalytics.Models.Customer
+
+@{
+    ViewData["Title"] = "Delete Customer";
+}
+
+<div class="container-fluid px-0 py-3">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1 text-danger">Delete Customer</h2>
+            <p class="text-muted small mb-0">Confirm deletion of this customer account.</p>
+        </div>
+        <div>
+            <a asp-action="Index" class="btn btn-outline-secondary d-inline-flex align-items-center gap-1 shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z" />
+                </svg>
+                <span>Back to List</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6 col-xl-5">
+            @if (ViewBag.HasHistoricalRecords == true)
+            {
+                <!-- Deletion Blocked Banner -->
+                <div class="alert alert-danger d-flex align-items-center gap-2 mb-4" role="alert">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16" class="flex-shrink-0" aria-hidden="true">
+                        <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.71c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                    </svg>
+                    <div>
+                        <strong>Deletion Blocked:</strong> This customer has
+                        @if (ViewBag.HistoricalSalesCount > 0 && ViewBag.HistoricalComplaintsCount > 0)
+                        {
+                            <span>@ViewBag.HistoricalSalesCount historical sales transaction(s) and @ViewBag.HistoricalComplaintsCount customer complaint record(s).</span>
+                        }
+                        else if (ViewBag.HistoricalSalesCount > 0)
+                        {
+                            <span>@ViewBag.HistoricalSalesCount historical sales transaction(s).</span>
+                        }
+                        else
+                        {
+                            <span>@ViewBag.HistoricalComplaintsCount customer complaint record(s).</span>
+                        }
+                        Customer records with historical sales or complaints cannot be deleted to preserve financial audit and service history integrity.
+                    </div>
+                </div>
+            }
+            else
+            {
+                <!-- Warning Banner -->
+                <div class="alert alert-warning d-flex align-items-center gap-2 mb-4" role="alert">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16" class="flex-shrink-0" aria-hidden="true">
+                        <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.71c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                    </svg>
+                    <div>
+                        <strong>Warning:</strong> Deleting this customer will remove their profile directory record. This action cannot be undone.
+                    </div>
+                </div>
+            }
+
+            <!-- Confirmation Card -->
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-body p-4">
+                    <h6 class="fw-semibold text-secondary text-uppercase small tracking-wide mb-3">Customer to be Deleted</h6>
+                    <dl class="row mb-4">
+                        <dt class="col-sm-4 text-muted fw-normal">Customer Name</dt>
+                        <dd class="col-sm-8 text-dark fw-bold mb-3">@Html.DisplayFor(model => model.Name)</dd>
+
+                        <dt class="col-sm-4 text-muted fw-normal">Phone</dt>
+                        <dd class="col-sm-8 text-secondary mb-3">@(string.IsNullOrWhiteSpace(Model.Phone) ? "-" : Model.Phone)</dd>
+
+                        <dt class="col-sm-4 text-muted fw-normal">Email</dt>
+                        <dd class="col-sm-8 text-secondary mb-3">@(string.IsNullOrWhiteSpace(Model.Email) ? "-" : Model.Email)</dd>
+
+                        <dt class="col-sm-4 text-muted fw-normal">Customer ID</dt>
+                        <dd class="col-sm-8 text-secondary font-monospace mb-0">#@Model.CustomerId</dd>
+                    </dl>
+
+                    <form asp-action="Delete" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="CustomerId" />
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="submit" class="btn btn-danger px-4 shadow-sm" @(ViewBag.HasHistoricalRecords == true ? "disabled" : "")>
+                                Delete Customer
+                            </button>
+                            <a asp-action="Index" class="btn btn-light text-secondary border px-3">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

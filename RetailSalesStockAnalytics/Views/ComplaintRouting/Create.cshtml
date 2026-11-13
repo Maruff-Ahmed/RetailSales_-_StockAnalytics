@@ -1,0 +1,204 @@
+﻿@using Microsoft.AspNetCore.Mvc.Rendering
+@model RetailSalesStockAnalytics.Models.Complaint
+
+@{
+    ViewData["Title"] = "Create Complaint";
+}
+
+<div class="container-fluid">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-8">
+
+            <div class="card shadow-sm">
+
+                <div class="card-header">
+
+                    <h4 class="mb-0">
+                        🤖 AI Complaint Routing
+                    </h4>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <p class="text-muted">
+                        Enter the customer's complaint. The system will
+                        analyze the complaint and automatically route it
+                        to the appropriate department.
+                    </p>
+
+
+                    <form asp-action="Create"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+
+                        <!-- CUSTOMER -->
+
+                        <div class="mb-3">
+
+                            <label asp-for="CustomerId"
+                                   class="form-label">
+
+                                Customer
+
+                            </label>
+
+                            <select asp-for="CustomerId"
+                                    asp-items="ViewBag.Customers"
+                                    class="form-select">
+
+                                <option value="">
+                                    -- Select Customer --
+                                </option>
+
+                            </select>
+
+                            <span asp-validation-for="CustomerId"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <!-- PRODUCT -->
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+
+                                Product
+
+                            </label>
+
+                            <select name="ProductId"
+                                    class="form-select"
+                                    required>
+
+                                <option value="">
+                                    -- Select Product --
+                                </option>
+
+                                @foreach (var product
+                                                                in (IEnumerable<SelectListItem>)
+                                                                ViewBag.Products)
+                                {
+                                    <option value="@product.Value">
+
+                                        @product.Text
+
+                                    </option>
+                                }
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- COMPLAINT -->
+
+                        <div class="mb-3">
+
+                            <label asp-for="ComplaintText"
+                                   class="form-label">
+
+                                Complaint
+
+                            </label>
+
+                            <textarea asp-for="ComplaintText"
+                                      class="form-control"
+                                      rows="6"
+                                      placeholder="Describe the customer's complaint..."
+                                      required>
+                            </textarea>
+
+                            <span asp-validation-for="ComplaintText"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <!-- INFORMATION -->
+
+                        <div class="alert alert-info">
+
+                            <strong>How AI Routing Works</strong>
+
+                            <ul class="mb-0 mt-2">
+
+                                <li>
+                                    The selected product determines
+                                    the product category.
+                                </li>
+
+                                <li>
+                                    The complaint is cleaned and
+                                    stop words are removed.
+                                </li>
+
+                                <li>
+                                    Cosine similarity is calculated
+                                    against relevant fault categories.
+                                </li>
+
+                                <li>
+                                    A similarity score of
+                                    <strong>80% or higher</strong>
+                                    is automatically routed.
+                                </li>
+
+                                <li>
+                                    Scores below 80% are sent for
+                                    <strong>Manual Review</strong>.
+                                </li>
+
+                            </ul>
+
+                        </div>
+
+
+                        <!-- BUTTONS -->
+
+                        <div class="d-flex gap-2">
+
+                            <button type="submit"
+                                    class="btn btn-primary">
+
+                                🤖 Analyze & Route
+
+                            </button>
+
+
+                            <a asp-action="Index"
+                               class="btn btn-secondary">
+
+                                Cancel
+
+                            </a>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+}

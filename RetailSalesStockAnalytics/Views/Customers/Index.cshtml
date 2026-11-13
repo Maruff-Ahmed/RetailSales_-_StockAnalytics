@@ -1,0 +1,91 @@
+@model IEnumerable<RetailSalesStockAnalytics.Models.Customer>
+
+@{
+    ViewData["Title"] = "Customers";
+}
+
+<div class="container-fluid px-0 py-3">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1 text-dark">Customer Directory</h2>
+            <p class="text-muted small mb-0">Overview and directory of all registered customers.</p>
+        </div>
+        <a asp-action="Create" class="btn btn-primary d-inline-flex align-items-center gap-2 shadow-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+            </svg>
+            <span>Add Customer</span>
+        </a>
+    </div>
+
+    <!-- Standardized Table Card -->
+    <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light text-secondary border-bottom">
+                        <tr>
+                            <th scope="col" class="ps-4 py-3 fw-semibold">
+                                @Html.DisplayNameFor(model => model.Name)
+                            </th>
+                            <th scope="col" class="py-3 fw-semibold">
+                                @Html.DisplayNameFor(model => model.Phone)
+                            </th>
+                            <th scope="col" class="py-3 fw-semibold">
+                                @Html.DisplayNameFor(model => model.Email)
+                            </th>
+                            <th scope="col" class="pe-4 py-3 text-end fw-semibold">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="4" class="text-center py-5 text-muted">
+                                    <div class="py-3">
+                                        <p class="mb-2 fw-semibold">No customers found</p>
+                                        <small>Get started by adding your first customer.</small>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="ps-4 py-3 fw-semibold text-dark">
+                                        @Html.DisplayFor(modelItem => item.Name)
+                                    </td>
+                                    <td class="py-3 text-secondary">
+                                        @(string.IsNullOrWhiteSpace(item.Phone) ? "-" : item.Phone)
+                                    </td>
+                                    <td class="py-3 text-secondary">
+                                        @(string.IsNullOrWhiteSpace(item.Email) ? "-" : item.Email)
+                                    </td>
+                                    <td class="pe-4 py-3 text-end">
+                                        <div class="btn-group btn-group-sm" role="group" aria-label="Customer Actions">
+                                            <a asp-action="Details" asp-route-id="@item.CustomerId" class="btn btn-outline-secondary" title="Details">
+                                                Details
+                                            </a>
+                                            <a asp-action="Edit" asp-route-id="@item.CustomerId" class="btn btn-outline-secondary" title="Edit">
+                                                Edit
+                                            </a>
+                                            @if (User.IsInRole("Admin"))
+                                            {
+                                                <a asp-action="Delete" asp-route-id="@item.CustomerId" class="btn btn-outline-danger" title="Delete">
+                                                    Delete
+                                                </a>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,96 @@
+@model RetailSalesStockAnalytics.Models.Product
+
+@{
+    ViewData["Title"] = "Product Details";
+}
+
+<div class="container-fluid px-0 py-3">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <h2 class="fw-bold text-dark mb-0">@Html.DisplayFor(model => model.Name)</h2>
+                <span class="badge bg-light text-dark border px-2.5 py-1.5 fw-medium">
+                    @Html.DisplayFor(model => model.Category.Name)
+                </span>
+            </div>
+            <p class="text-muted small mb-0">Detailed view of product specifications, pricing, and stock metrics.</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            @if (User.IsInRole("Admin"))
+            {
+                <a asp-action="Edit" asp-route-id="@Model?.ProductId" class="btn btn-primary d-inline-flex align-items-center gap-1 shadow-sm">
+                    <i class="bi bi-pencil"></i>
+                    <span>Edit Product</span>
+                </a>
+            }
+            <a asp-action="Index" class="btn btn-outline-secondary d-inline-flex align-items-center gap-1">
+                <i class="bi bi-arrow-left"></i>
+                <span>Back to List</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Stock Status Card -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card border-0 shadow-sm rounded-3 h-100">
+                <div class="card-body p-4">
+                    <h6 class="fw-semibold text-secondary text-uppercase small tracking-wide mb-3">Inventory Status</h6>
+
+                    <div class="mb-4">
+                        <span class="text-muted small d-block mb-1">@Html.DisplayNameFor(model => model.StockQuantity)</span>
+                        <div class="d-flex align-items-baseline gap-2">
+                            <h3 class="fw-bold text-dark mb-0">@Html.DisplayFor(model => model.StockQuantity)</h3>
+                            <span class="badge @(Model.StockQuantity <= Model.ReorderLevel ? "bg-danger-subtle text-danger border border-danger-subtle" : "bg-success-subtle text-success border border-success-subtle") rounded-pill px-2 py-1 small">
+                                @(Model.StockQuantity <= Model.ReorderLevel ? "Low Stock" : "In Stock")
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-top">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted small">@Html.DisplayNameFor(model => model.ReorderLevel)</span>
+                            <span class="fw-semibold text-dark">@Html.DisplayFor(model => model.ReorderLevel)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pricing Breakdown Card -->
+        <div class="col-md-6 col-lg-8">
+            <div class="card border-0 shadow-sm rounded-3 h-100">
+                <div class="card-body p-4">
+                    <h6 class="fw-semibold text-secondary text-uppercase small tracking-wide mb-3">Financial Overview</h6>
+
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <div class="p-3 bg-light rounded-3 border border-light-subtle">
+                                <span class="text-muted small d-block mb-1">@Html.DisplayNameFor(model => model.PurchasePrice)</span>
+                                <h4 class="fw-semibold font-monospace text-secondary mb-0">
+                                    @Html.DisplayFor(model => model.PurchasePrice)
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="p-3 bg-light rounded-3 border border-light-subtle">
+                                <span class="text-muted small d-block mb-1">@Html.DisplayNameFor(model => model.SellingPrice)</span>
+                                <h4 class="fw-bold font-monospace text-dark mb-0">
+                                    @Html.DisplayFor(model => model.SellingPrice)
+                                </h4>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-top">
+                        <dl class="row mb-0 small">
+                            <dt class="col-sm-4 text-muted fw-normal">@Html.DisplayNameFor(model => model.Category)</dt>
+                            <dd class="col-sm-8 text-dark fw-medium mb-0">@Html.DisplayFor(model => model.Category.Name)</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
